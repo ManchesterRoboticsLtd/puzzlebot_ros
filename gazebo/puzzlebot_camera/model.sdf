@@ -246,6 +246,7 @@
             <cmd_vel_topic>cmd_vel</cmd_vel_topic>
             <enc_R_topic>VelocityEncR</enc_R_topic>
             <enc_L_topic>VelocityEncL</enc_L_topic>
+            <robot_vel_topic>robot_vel</robot_vel_topic>
             <mot_Vmax>5</mot_Vmax>
             <mot_J>0.0005</mot_J>
             <mot_R>2</mot_R>

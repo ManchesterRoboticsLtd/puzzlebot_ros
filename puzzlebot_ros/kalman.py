@@ -11,6 +11,7 @@ from .my_math import wrap_to_pi
 
 from std_msgs.msg import Float32
 from geometry_msgs.msg import Twist
+from geometry_msgs.msg import TwistStamped
 from nav_msgs.msg import Odometry
 from aruco_msgs.msg import MarkerArray
 
@@ -30,6 +31,8 @@ class Kalman(Node):
         
         self.sub_encR = self.create_subscription(Float32,'VelocityEncR',self.encR_callback,qos.qos_profile_sensor_data)
         self.sub_encL = self.create_subscription(Float32,'VelocityEncL',self.encL_callback,qos.qos_profile_sensor_data)
+        
+        self.sub_robot_vel = self.create_subscription(TwistStamped,'robot_vel',self.robot_vel_callback,qos.qos_profile_sensor_data)
         
         self.sub_aruco = self.create_subscription(MarkerArray,'/marker_publisher/markers',self.aruco_callback,qos.qos_profile_sensor_data)
         
@@ -61,8 +64,8 @@ class Kalman(Node):
                     [1,   0,  -1,   3.1415]]
                 
         self.total_time = 0;
-        
-        self.timer_run = timer()
+                
+        self.first_stamp = True
         
         
     def encR_callback(self, msg):
@@ -71,6 +74,22 @@ class Kalman(Node):
         
     def encL_callback(self, msg):
         self.velocityL = msg.data
+       
+        
+    def robot_vel_callback(self, msg):
+        if self.first_stamp == True:
+            self.first_stamp = False
+            self.prev_stamp = msg.header.stamp
+        
+        if self.first_stamp == False:
+            self.dt = msg.header.stamp.sec - self.prev_stamp.sec + (msg.header.stamp.nanosec - self.prev_stamp.nanosec)*1e-9
+
+        self.prev_stamp = msg.header.stamp
+        
+        self.Vr = msg.twist.linear.x
+        self.Wr = msg.twist.angular.z
+        
+        self.kalman_prediction()
 
 
     def aruco_callback(self, msg):
@@ -88,9 +107,7 @@ class Kalman(Node):
 
     
     def run_loop(self):
-            
-        self.kalman_prediction()
-        
+                    
         odom = Odometry()
         
         odom.header.stamp = self.get_clock().now().to_msg()
@@ -119,8 +136,6 @@ class Kalman(Node):
                
         
     def kalman_prediction(self):
-        dt = timer()-self.timer_run
-        self.timer_run = timer()
         
         R = self.wheel_radius
         L = self.robot_width
@@ -128,17 +143,17 @@ class Kalman(Node):
         self.Vr = (self.velocityR+self.velocityL)*self.wheel_radius/2
         self.Wr = (self.velocityR-self.velocityL)*self.wheel_radius/(self.robot_width)
                 
-        self.pose_x = self.pose_x + dt*self.Vr*math.cos(self.pose_theta+dt*self.Wr/2)
-        self.pose_y = self.pose_y + dt*self.Vr*math.sin(self.pose_theta+dt*self.Wr/2)
-        self.pose_theta = wrap_to_pi(self.pose_theta + dt*self.Wr)
+        self.pose_x = self.pose_x + self.dt*self.Vr*math.cos(self.pose_theta+self.dt*self.Wr/2)
+        self.pose_y = self.pose_y + self.dt*self.Vr*math.sin(self.pose_theta+self.dt*self.Wr/2)
+        self.pose_theta = wrap_to_pi(self.pose_theta + self.dt*self.Wr)
         
-        H = np.array([[1, 0, -dt*self.Vr*math.sin(self.pose_theta)],
-                      [0, 1, dt*self.Vr*math.cos(self.pose_theta)],
+        H = np.array([[1, 0, -self.dt*self.Vr*math.sin(self.pose_theta)],
+                      [0, 1, self.dt*self.Vr*math.cos(self.pose_theta)],
                       [0, 0, 1]])
              
-        dH = np.array([[0.5*dt*R*math.cos(self.pose_theta), 0.5*dt*R*math.cos(self.pose_theta)],
-                       [0.5*dt*R*math.sin(self.pose_theta), 0.5*dt*R*math.sin(self.pose_theta)],
-                       [dt*R/L, -dt*R/L]])
+        dH = np.array([[0.5*self.dt*R*math.cos(self.pose_theta), 0.5*self.dt*R*math.cos(self.pose_theta)],
+                       [0.5*self.dt*R*math.sin(self.pose_theta), 0.5*self.dt*R*math.sin(self.pose_theta)],
+                       [self.dt*R/L, -self.dt*R/L]])
                        
         K = np.array([[self.sigma_squared*abs(self.velocityR),   0                                     ],
                       [0,                                        self.sigma_squared*abs(self.velocityL)]])
