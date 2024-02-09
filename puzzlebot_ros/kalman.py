@@ -164,6 +164,7 @@ class Kalman(Node):
         
         #print(self.Sig)
 
+
     def kalman_correction(self, markers, cov):
 
         S = [0,0,0]
@@ -206,13 +207,12 @@ class Kalman(Node):
         self.pose_theta = S[2]
 
 
-
     def get_landmark(self, id):
         for mark in self.map:
             if mark[0] == id:
                 return  1, mark[1:3]
                 
-        return 0, 0, 0, 0
+        return 0, 0, 0
             
 
     def stop(self):
