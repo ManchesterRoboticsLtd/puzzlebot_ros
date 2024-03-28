@@ -38,18 +38,18 @@ def generate_launch_description():
         
     aruco = Node(
         package='aruco_opencv',
-        executable='aruco_tracker',
+        executable='aruco_tracker_autostart',
         parameters=[
-                {"cam_base_topic": "/video_source/raw"},
+                {"camera_topic": "/video_source/raw"},
+                {"camera_info_topic": "/video_source/camera_info"},
                 {"marker_size": 0.1},
                 {"marker_dict": "4X4_50"},
-                {"publish_tf": True},
-                {"output_frame": "camera"}
+                {"publish_tf": True}
         ],
         remappings=[],
         output='screen'
     )
-    
-    ld = [camera, camera_info, aruco]
+        
+    ld = [aruco]
 
     return LaunchDescription(ld)

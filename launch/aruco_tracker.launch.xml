@@ -1,0 +1,7 @@
+<launch version="0.1.1">
+  <node pkg="aruco_opencv" exec="aruco_tracker" output="screen">
+    <param name="cam_base_topic" value="/video_source/raw" />
+    <param name="marker_dict" value="4X4_50" />
+    <param name="marker_size" value= "0.1" />
+  </node>
+</launch> 
