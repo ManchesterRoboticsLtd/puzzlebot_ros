@@ -13,7 +13,7 @@ from launch.actions import ExecuteProcess
 
 def generate_launch_description():
            
-    gazebo_sim = ExecuteProcess(cmd=['gz', 'sim', 'world_aruco_mip.sdf'], name='gazebo_sim', output='screen')
+    gazebo_sim = ExecuteProcess(cmd=['gz', 'sim', 'world_aruco_cv.sdf'], name='gazebo_sim', output='screen')
     
     # Bridge
     bridge = Node(

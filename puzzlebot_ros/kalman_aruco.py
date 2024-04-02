@@ -13,7 +13,7 @@ from std_msgs.msg import Float32
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import TwistStamped
 from nav_msgs.msg import Odometry
-from aruco_msgs.msg import MarkerArray
+from aruco_opencv_msgs.msg import ArucoDetection
 
 from geometry_msgs.msg import TransformStamped
 from tf2_ros import TransformBroadcaster
@@ -34,7 +34,7 @@ class Kalman(Node):
         
         self.sub_robot_vel = self.create_subscription(TwistStamped,'robot_vel',self.robot_vel_callback,qos.qos_profile_sensor_data)
         
-        self.sub_aruco = self.create_subscription(MarkerArray,'/marker_publisher/markers',self.aruco_callback,qos.qos_profile_sensor_data)
+        self.sub_aruco = self.create_subscription(ArucoDetection,'/aruco_detections',self.aruco_callback,qos.qos_profile_sensor_data)
                                                 
         self.tf_broadcaster = TransformBroadcaster(self)
                                                 
@@ -95,11 +95,11 @@ class Kalman(Node):
     def aruco_callback(self, msg):
         markers = []
         for aruco_marker in msg.markers:
-            marker = [0, 0, 0, 0]
-            roll, pitch, yaw = euler_from_quaternion(aruco_marker.pose.pose.orientation)
-            marker[0] = aruco_marker.id
-            marker[1] = aruco_marker.pose.pose.position.z
-            marker[2] = -aruco_marker.pose.pose.position.x
+            marker = [0, 0.0, 0.0, 0.0]
+            roll, pitch, yaw = euler_from_quaternion(aruco_marker.pose.orientation)
+            marker[0] = aruco_marker.marker_id
+            marker[1] = aruco_marker.pose.position.z
+            marker[2] = -aruco_marker.pose.position.x
             marker[3] = wrap_to_pi(-pitch)
             markers.append(marker)
             

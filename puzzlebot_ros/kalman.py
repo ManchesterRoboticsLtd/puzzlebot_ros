@@ -13,7 +13,7 @@ from std_msgs.msg import Float32
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import TwistStamped
 from nav_msgs.msg import Odometry
-from aruco_msgs.msg import MarkerArray
+from aruco_opencv_msgs.msg import ArucoDetection
 
 from geometry_msgs.msg import TransformStamped
 from tf2_ros import TransformBroadcaster
@@ -34,7 +34,7 @@ class Kalman(Node):
         
         self.sub_robot_vel = self.create_subscription(TwistStamped,'robot_vel',self.robot_vel_callback,qos.qos_profile_sensor_data)
         
-        self.sub_aruco = self.create_subscription(MarkerArray,'/marker_publisher/markers',self.aruco_callback,qos.qos_profile_sensor_data)
+        self.sub_aruco = self.create_subscription(ArucoDetection,'/aruco_detections',self.aruco_callback,qos.qos_profile_sensor_data)
         
         self.tf_broadcaster = TransformBroadcaster(self)
                                                 
@@ -96,9 +96,9 @@ class Kalman(Node):
         markers = []
         for aruco_marker in msg.markers:
             marker = [0.0, 0.0, 0.0]
-            dx = aruco_marker.pose.pose.position.z
-            dy = -aruco_marker.pose.pose.position.x
-            marker[0] = aruco_marker.id
+            dx = aruco_marker.pose.position.z
+            dy = -aruco_marker.pose.position.x
+            marker[0] = aruco_marker.marker_id
             marker[1] = math.sqrt(dx**2+dy**2)
             marker[2] = math.atan2(dy,dx)
             markers.append(marker)

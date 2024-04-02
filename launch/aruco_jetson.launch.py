@@ -30,23 +30,25 @@ def generate_launch_description():
         arguments=[],
         parameters=[
                 {"camera_calibration_file": "file:///home/puzzlebot/.ros/jetson_cam.yaml"},
+                {"camera_info_topic": "/video_source/camera_info"},
                 {"frame_id": "camera"}
         ],
         output='screen'
     )
         
     aruco = Node(
-        package='aruco_ros',
-        executable='marker_publisher',
+        package='aruco_opencv',
+        executable='aruco_tracker_autostart',
         parameters=[
-                {"image_is_rectified": True},
+                {"cam_base_topic": "/video_source/raw"},
                 {"marker_size": 0.1},
-                {"reference_frame": "base"},
-                {"camera_frame": "camera"}
+                {"marker_dict": "4X4_50"},
+                {"publish_tf": True}
         ],
-        remappings=[('/image', '/video_source/raw')]
+        remappings=[],
+        output='screen'
     )
-    
-    ld = [camera, camera_info, aruco]
+        
+    ld = [aruco]
 
     return LaunchDescription(ld)

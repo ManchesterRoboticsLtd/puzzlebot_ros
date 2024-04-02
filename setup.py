@@ -38,12 +38,9 @@ setup(
                 'pwm_control = puzzlebot_ros.pwm_control:main',
                 'velocity_control = puzzlebot_ros.velocity_control:main',
                 'distance_control = puzzlebot_ros.distance_control:main',
-                'test_imu = puzzlebot_ros.test_imu:main',
                 'kalman = puzzlebot_ros.kalman:main',
                 'kalman_aruco = puzzlebot_ros.kalman_aruco:main',
-                'kalman_aruco_cv = puzzlebot_ros.kalman_aruco_cv:main',
-                'goto_point = puzzlebot_ros.goto_point:main',
-                'test_odom = puzzlebot_ros.test_odom:main'
+                'goto_point = puzzlebot_ros.goto_point:main'
         ],
     },
 )

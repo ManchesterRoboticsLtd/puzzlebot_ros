@@ -10,7 +10,6 @@ from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 from launch.substitutions import LaunchConfiguration
-from nav2_common.launch import RewrittenYaml
 
 def generate_launch_description():
            
@@ -27,7 +26,7 @@ def generate_launch_description():
     
     kalman = Node(
         package='puzzlebot_ros',
-        executable='kalman',
+        executable='kalman_aruco',
         name='kalman_node',
         arguments=[],
         output='screen'
@@ -36,9 +35,10 @@ def generate_launch_description():
     
     aruco = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(pkg_puzzlebot_ros, 'marker_publisher.launch.py'),
+            os.path.join(pkg_puzzlebot_ros, 'aruco_raspberry.launch.py'),
         )
     )
-    ld = [go_to, kalman, aruco]
+        
+    ld = [aruco, kalman, go_to]
 
     return LaunchDescription(ld)
