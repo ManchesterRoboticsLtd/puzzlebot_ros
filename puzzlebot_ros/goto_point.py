@@ -47,8 +47,10 @@ class GotoPoint(Node):
         self.pidR = PidController()
         self.pidL = PidController()
         
-        self.target_x = [1, 3.8, 4, 1]
-        self.target_y = [1, 2, 0, -1]
+        self.target_x = [1.2, 0.8]
+        self.target_y = [1, -0.6]
+        #self.target_x = [1, 3.8, 4, 1]
+        #self.target_y = [1, 2, 0, -1]
         #self.target_x = [3]
         #self.target_y = [0]
         
