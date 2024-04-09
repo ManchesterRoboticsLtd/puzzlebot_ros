@@ -47,21 +47,22 @@ class GotoPoint(Node):
         self.pidR = PidController()
         self.pidL = PidController()
         
-        self.target_x = [1.2, 0.8]
-        self.target_y = [1, -0.6]
+        self.pidR.SetParameters(0.03,0.03,0.0)
+        self.pidL.SetParameters(0.03,0.03,0.0)
+        
+        self.target_x = [0.5, 1.5, 1.5,  0.5,  0.5]
+        self.target_y = [0,     0,  -1,   -1,    0]
         #self.target_x = [1, 3.8, 4, 1]
         #self.target_y = [1, 2, 0, -1]
-        #self.target_x = [3]
-        #self.target_y = [0]
         
         self.current_point = 0
         
         self.Dmin = 0.05
         self.Kd = 1.0
-        self.Kt = 2.0
+        self.Kt = 1.0
         
         self.v_max = 0.2
-        self.w_max = 1
+        self.w_max = 2
         
         self.pose_x = 0.0
         self.pose_y = 0.0
@@ -76,15 +77,14 @@ class GotoPoint(Node):
         self.wc = 0
         
         self.wheel_radius = 0.05
-        self.robot_width = 0.1875
+        self.robot_width = 0.173
                 
-        self.timer_pid = timer()
-        
-        self.total_time = 0;
+        self.enc_received = False
         
         
     def encR_callback(self, msg):
         self.velocityR = msg.data
+        self.enc_received = True
 
         
     def encL_callback(self, msg):
@@ -107,7 +107,8 @@ class GotoPoint(Node):
         self.Sig[2,2] = msg.pose.covariance[35]
         
 
-    def goto_loop(self):        
+    def goto_loop(self):    
+                    
         if self.current_point<len(self.target_x):
         
             err_x = self.target_x[self.current_point] - self.pose_x
@@ -121,9 +122,13 @@ class GotoPoint(Node):
             self.wc = self.Kt*err_theta
             
             if self.vc>self.v_max:
-                self.vc = self.v_max                
+                self.vc = self.v_max
+                              
             if abs(self.wc)>self.w_max:
                 self.wc = np.sign(self.wc)*self.w_max
+                
+            if abs(err_theta)>0.2:
+                self.vc = 0
                 
             self.w_setR = (self.vc + self.wc*self.robot_width/2) / self.wheel_radius
             self.w_setL = (self.vc - self.wc*self.robot_width/2) / self.wheel_radius
@@ -134,27 +139,27 @@ class GotoPoint(Node):
             self.vc = 0.0
             self.wc = 0.0
             self.w_setR = 0.0                       
-            self.w_setL = 0.0   
+            self.w_setL = 0.0 
+             
+        #msg_cmdR = Float32()
+        #msg_cmdL = Float32()
+        #msg_cmdR.data = self.w_setR    
+        #msg_cmdL.data = self.w_setL    
+        #self.pub_cmdR.publish(msg_cmdR)
+        #self.pub_cmdL.publish(msg_cmdL)
 
     
     def velocity_loop(self):   
-        msg_cmdR = Float32()
-        msg_cmdL = Float32()            
+        if self.enc_received:
+            msg_cmdR = Float32()
+            msg_cmdL = Float32()            
             
-        msg_cmdR.data = self.pidR.GetControl(self.w_setR,self.velocityR,self.pid_dt)
-        msg_cmdL.data = self.pidL.GetControl(self.w_setL,self.velocityL,self.pid_dt)
+            msg_cmdR.data = self.pidR.GetControl(self.w_setR,self.velocityR,self.pid_dt)
+            msg_cmdL.data = self.pidL.GetControl(self.w_setL,self.velocityL,self.pid_dt)
                           
-        self.pub_cmdR.publish(msg_cmdR)
-        self.pub_cmdL.publish(msg_cmdL)
+            self.pub_cmdR.publish(msg_cmdR)
+            self.pub_cmdL.publish(msg_cmdL)
                   
-
-    def stop(self):
-        msg_cmdR = Float32()
-        msg_cmdL = Float32()                        
-        msg_cmdR.data = 0.0
-        msg_cmdL.data = 0.0                       
-        self.pub_cmdR.publish(msg_cmdR)
-        self.pub_cmdL.publish(msg_cmdL)
 
     def stop_handler(self,signum, frame):
         msg = Float32()                       

@@ -8,6 +8,11 @@ class PidController():
         self.err_prev=0
         self.err_int=0
         
+    def SetParameters(self, Kp, Ti, Td):
+        self.Kp = Kp
+        self.Ti = Ti
+        self.Td = Td
+        
     def GetControl(self, r, y, dt):
         err = r-y
         derr = (err-self.err_prev)/dt

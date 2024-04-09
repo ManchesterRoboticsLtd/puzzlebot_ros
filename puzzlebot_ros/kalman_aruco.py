@@ -65,8 +65,8 @@ class Kalman(Node):
                     [1,   0.7,  -1.35,   -1.57]]
         
         # Map for gazebo world
-        #self.map = [[0,   3,   1,   0],
-        #            [1,   0,  -1,   3.1415]]
+        self.map = [[0,   3,   1,   0],
+                    [1,   0,  -1,   3.1415]]
                 
         self.total_time = 0;
         

@@ -35,10 +35,10 @@ def generate_launch_description():
     
     aruco = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(pkg_puzzlebot_ros, 'aruco_raspberry.launch.py'),
+            os.path.join(pkg_puzzlebot_ros, 'aruco_gazebo.launch.py'),
         )
     )
         
-    ld = [aruco, kalman, go_to]
+    ld = [kalman, go_to]
 
     return LaunchDescription(ld)
