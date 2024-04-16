@@ -49,6 +49,6 @@ def generate_launch_description():
         output='screen'
     )
         
-    ld = [aruco]
+    ld = [camera, camera_info, aruco]
 
     return LaunchDescription(ld)

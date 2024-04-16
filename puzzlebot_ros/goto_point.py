@@ -47,8 +47,8 @@ class GotoPoint(Node):
         self.pidR.SetParameters(0.03,0.03,0.0)
         self.pidL.SetParameters(0.03,0.03,0.0)
         
-        self.target_x = [0.5, 1.5, 1.5,  0.5,  0.5]
-        self.target_y = [0,     0,  -1,   -1,    0]
+        self.target_x = [1,  1,  0,  0]
+        self.target_y = [0, -1, -1,  0]
         #self.target_x = [1, 3.8, 4, 1]
         #self.target_y = [1, 2, 0, -1]
         
