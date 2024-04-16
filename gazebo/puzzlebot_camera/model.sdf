@@ -241,8 +241,8 @@
         <plugin name="DiffDynamicPlugin" filename="libDiffDynamicPlugin.so">
             <leftJoint>left_wheel_joint</leftJoint>
             <rightJoint>right_wheel_joint</rightJoint>
-            <cmd_R_topic>ControlR</cmd_R_topic>
-            <cmd_L_topic>ControlL</cmd_L_topic>
+            <cmd_R_topic>VelocitySetR</cmd_R_topic>
+            <cmd_L_topic>VelocitySetL</cmd_L_topic>
             <cmd_vel_topic>cmd_vel</cmd_vel_topic>
             <enc_R_topic>VelocityEncR</enc_R_topic>
             <enc_L_topic>VelocityEncL</enc_L_topic>
@@ -259,7 +259,7 @@
             <pid_Kp>0.1</pid_Kp>
             <pid_Ti>0.05</pid_Ti>
             <pid_Td>0</pid_Td>
-            <input_type>3</input_type>
+            <input_type>2</input_type>
             <rate>100</rate>
         </plugin>
         

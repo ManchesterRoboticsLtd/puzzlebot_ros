@@ -39,7 +39,7 @@ setup(
                 'velocity_control = puzzlebot_ros.velocity_control:main',
                 'distance_control = puzzlebot_ros.distance_control:main',
                 'kalman = puzzlebot_ros.kalman:main',
-                'kalman_aruco = puzzlebot_ros.kalman_aruco:main',
+                'dead_reckoning = puzzlebot_ros.dead_reckoning:main',
                 'goto_point = puzzlebot_ros.goto_point:main'
         ],
     },

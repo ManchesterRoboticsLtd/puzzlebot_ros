@@ -24,17 +24,14 @@ class GotoPoint(Node):
     def __init__(self):
         super().__init__('goto_point')
         
-        self.pub_cmdR = self.create_publisher(Float32, 'ControlR', 10)
-        self.pub_cmdL = self.create_publisher(Float32, 'ControlL', 10)
+        self.pub_cmdR = self.create_publisher(Float32, 'VelocitySetR', 10)
+        self.pub_cmdL = self.create_publisher(Float32, 'VelocitySetL', 10)
         
         self.sub_encR = self.create_subscription(Float32,'VelocityEncR',self.encR_callback,qos.qos_profile_sensor_data)
         self.sub_encL = self.create_subscription(Float32,'VelocityEncL',self.encL_callback,qos.qos_profile_sensor_data)
         
         self.sub_odom = self.create_subscription(Odometry,'/odom',self.odom_callback,qos.qos_profile_sensor_data)
-                        
-        self.pid_dt = 0.02  # seconds
-        self.timer_pid = self.create_timer(self.pid_dt, self.velocity_loop)
-        
+                                
         self.goto_dt = 0.1  # seconds
         self.timer_goto = self.create_timer(self.goto_dt, self.goto_loop)
                 
@@ -141,26 +138,14 @@ class GotoPoint(Node):
             self.w_setR = 0.0                       
             self.w_setL = 0.0 
              
-        #msg_cmdR = Float32()
-        #msg_cmdL = Float32()
-        #msg_cmdR.data = self.w_setR    
-        #msg_cmdL.data = self.w_setL    
-        #self.pub_cmdR.publish(msg_cmdR)
-        #self.pub_cmdL.publish(msg_cmdL)
+        msg_cmdR = Float32()
+        msg_cmdL = Float32()
+        msg_cmdR.data = self.w_setR    
+        msg_cmdL.data = self.w_setL    
+        self.pub_cmdR.publish(msg_cmdR)
+        self.pub_cmdL.publish(msg_cmdL)
 
     
-    def velocity_loop(self):   
-        if self.enc_received:
-            msg_cmdR = Float32()
-            msg_cmdL = Float32()            
-            
-            msg_cmdR.data = self.pidR.GetControl(self.w_setR,self.velocityR,self.pid_dt)
-            msg_cmdL.data = self.pidL.GetControl(self.w_setL,self.velocityL,self.pid_dt)
-                          
-            self.pub_cmdR.publish(msg_cmdR)
-            self.pub_cmdL.publish(msg_cmdL)
-                  
-
     def stop_handler(self,signum, frame):
         msg = Float32()                       
         msg.data = 0.0                     

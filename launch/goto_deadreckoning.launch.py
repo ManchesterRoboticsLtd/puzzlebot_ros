@@ -24,14 +24,14 @@ def generate_launch_description():
         output='screen'
     )
     
-    kalman = Node(
+    dead_reckon = Node(
         package='puzzlebot_ros',
-        executable='kalman',
-        name='kalman_node',
+        executable='dead_reckoning',
+        name='deadreckoning_node',
         arguments=[],
         output='screen'
     )
             
-    ld = [kalman, go_to]
+    ld = [dead_reckon, go_to]
 
     return LaunchDescription(ld)

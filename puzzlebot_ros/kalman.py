@@ -35,7 +35,7 @@ class Kalman(Node):
         self.sub_robot_vel = self.create_subscription(TwistStamped,'robot_vel',self.robot_vel_callback,qos.qos_profile_sensor_data)
         
         self.sub_aruco = self.create_subscription(ArucoDetection,'/aruco_detections',self.aruco_callback,qos.qos_profile_sensor_data)
-        
+                                                
         self.tf_broadcaster = TransformBroadcaster(self)
                                                 
         self.run_dt = 0.02  # seconds
@@ -59,12 +59,17 @@ class Kalman(Node):
         self.Sig = np.array([[0,0,0],
                              [0,0,0],
                              [0,0,0]])
-                              
+        
+        # Map for real world   
+        self.map = [[0,   2,   0.5,   0],
+                    [1,   0.7,  -1.35,   -1.57]]
+        
+        # Map for gazebo world
         self.map = [[0,   3,   1,   0],
                     [1,   0,  -1,   3.1415]]
                 
         self.total_time = 0;
-                
+        
         self.first_stamp = True
         
         
@@ -74,8 +79,8 @@ class Kalman(Node):
         
     def encL_callback(self, msg):
         self.velocityL = msg.data
-       
-        
+
+
     def robot_vel_callback(self, msg):
         if self.first_stamp == True:
             self.first_stamp = False
@@ -95,19 +100,19 @@ class Kalman(Node):
     def aruco_callback(self, msg):
         markers = []
         for aruco_marker in msg.markers:
-            marker = [0.0, 0.0, 0.0]
-            dx = aruco_marker.pose.position.z
-            dy = -aruco_marker.pose.position.x
+            marker = [0, 0.0, 0.0, 0.0]
+            roll, pitch, yaw = euler_from_quaternion(aruco_marker.pose.orientation)
             marker[0] = aruco_marker.marker_id
-            marker[1] = math.sqrt(dx**2+dy**2)
-            marker[2] = math.atan2(dy,dx)
+            marker[1] = aruco_marker.pose.position.z
+            marker[2] = -aruco_marker.pose.position.x
+            marker[3] = wrap_to_pi(-pitch)
             markers.append(marker)
-
+            
         self.kalman_correction(markers,0.1)
 
     
     def run_loop(self):
-                    
+        
         odom = Odometry()
         
         odom.header.stamp = self.get_clock().now().to_msg()
@@ -123,7 +128,7 @@ class Kalman(Node):
         odom.pose.covariance[35] = self.Sig[2][2]
         
         self.pub_odom.publish(odom)
-        
+               
         t = TransformStamped()
         t.header.stamp = self.get_clock().now().to_msg()
         t.header.frame_id = "odom"
@@ -133,7 +138,7 @@ class Kalman(Node):
         t.transform.translation.z = 0.0
         t.transform.rotation = odom.pose.pose.orientation
         self.tf_broadcaster.sendTransform(t)
-               
+
         
     def kalman_prediction(self):
         
@@ -166,6 +171,15 @@ class Kalman(Node):
 
 
     def kalman_correction(self, markers, cov):
+        #   Sensor model:
+        #      z_x =  (m_x-s_x)*cos(s_theta) + (m_y-s_y)*sin(s_theta)
+        #      z_y = -(m_x-s_x)*sin(s_theta) + (m_y-s_y)*cos(s_theta)
+        #      z_theta = m_thteta - s_theta
+        #
+        #   Jacobian:
+        #      -cos(s_theta)    -sin(s_theta)    -(m_x-s_x)*sin(s_theta) + (m_y-s_y)*cos(s_theta)
+        #       sin(s_theta)    -cos(s_theta)    -(m_x-s_x)*cos(s_theta) - (m_y-s_y)*sin(s_theta)
+        #       0                0               -1                          
 
         S = [0,0,0]
         
@@ -178,22 +192,21 @@ class Kalman(Node):
         
             if found == 1:
             
-                dx = M[0] - self.pose_x
-                dy = M[1] - self.pose_y
-                
-                p = dx**2 + dy**2
-                
-                Z_hat = np.array([ math.sqrt(p), wrap_to_pi(math.atan2(dy,dx)-self.pose_theta)])
+                Z_hat = np.array([ (M[0]-S[0])*math.cos(S[2]) + (M[1]-S[1])*math.sin(S[2]),
+                                  -(M[0]-S[0])*math.sin(S[2]) + (M[1]-S[1])*math.cos(S[2]),
+                                    wrap_to_pi(M[2]-S[2])])
         
-                G = np.array([[-dx/math.sqrt(p),  -dy/math.sqrt(p), 0],
-                              [ dy/p,             -dx/p,           -1]])
+                G = np.array([[-math.cos(S[2]),  -math.sin(S[2]), -(M[0]-S[0])*math.sin(S[2]) + (M[1]-S[1])*math.cos(S[2])],
+                              [ math.sin(S[2]),  -math.cos(S[2]), -(M[0]-S[0])*math.cos(S[2]) - (M[1]-S[1])*math.sin(S[2])],
+                              [         0,           0,                                             -1]])
                       
-                R = np.array([[cov,   0],
-                              [  0, cov]])
+                R = np.array([[cov,   0,     0],
+                              [  0, cov,     0],
+                              [  0,   0,   cov]])
+                          
+                diff = marker[1:4] - Z_hat
+                marker[3] = wrap_to_pi(marker[3])
                       
-                diff = marker[1:3] - Z_hat
-                marker[2] = wrap_to_pi(marker[2])
-                
                 Z = G @ self.Sig @ G.T + R               # Z = G*Sig*G' + R
         
                 K = self.Sig @ G.T @ np.linalg.inv(Z)    # Kalman gain:  K = Sig*G'*inv(Z)
@@ -201,7 +214,7 @@ class Kalman(Node):
                 S = S + K @ diff                         # Update pose mean:  s = s + K*(Z-Z_hat)
         
                 self.Sig = (np.eye(3)-K @ G) @ self.Sig  # Update covariance:  Sig = (I-K*G)*Sig
-                
+            
         self.pose_x = S[0]
         self.pose_y = S[1]
         self.pose_theta = S[2]
@@ -210,9 +223,9 @@ class Kalman(Node):
     def get_landmark(self, id):
         for mark in self.map:
             if mark[0] == id:
-                return  1, mark[1:3]
+                return  1, mark[1:4]
                 
-        return 0, 0, 0
+        return 0, 0, 0, 0
             
 
     def stop(self):
