@@ -13,8 +13,6 @@ from std_msgs.msg import Float32
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 
-from .pid_controller import PidController
-
 import numpy as np
 
 from timeit import default_timer as timer
@@ -40,17 +38,9 @@ class GotoPoint(Node):
         
         self.w_setR = 0.0
         self.w_setL = 0.0
-                
-        self.pidR = PidController()
-        self.pidL = PidController()
-        
-        self.pidR.SetParameters(0.03,0.03,0.0)
-        self.pidL.SetParameters(0.03,0.03,0.0)
-        
+                                
         self.target_x = [1,  1,  0,  0]
         self.target_y = [0, -1, -1,  0]
-        #self.target_x = [1, 3.8, 4, 1]
-        #self.target_y = [1, 2, 0, -1]
         
         self.current_point = 0
         
