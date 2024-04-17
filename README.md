@@ -84,7 +84,7 @@ The following launch files and apps are available:
 * `distance_control`: cascade control with laser sensor for keeping a constant distance to an obstacle.
 
 
-The following topics are used for commuication eith the robot:
+The following topics are used for commuication with the robot:
 * `ControlR`: right wheel pwm signal (when control_input=3 on the robot);
 * `ControlL`: left wheel pwm signal (when control_input=3 on the robot);
 * `VelocitySetR`: right wheel angular velocity setpoint (when control_input=2 on the robot);
