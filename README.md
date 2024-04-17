@@ -85,13 +85,13 @@ The following launch files and apps are available:
 
 
 The following topics are used for commuication eith the robot:
-* 'ControlR': right wheel pwm signal (when control_input=3 on the robot);
-* 'ControlL': left wheel pwm signal (when control_input=3 on the robot);
-* 'VelocitySetR': right wheel angular velocity setpoint (when control_input=2 on the robot);
-* 'VelocitySetL': left wheel angular velocity setpoint (when control_input=2 on the robot);
-* 'cmd_vel': linear and angular velocity setpoints (when control_input=1 on the robot);
-* 'VelocityEncR': right wheel angular velocity;
-* 'VelocityEncL': left wheel angular velocity;
-* 'robot_vel': linear and angular velocities of the robot;
+* `ControlR`: right wheel pwm signal (when control_input=3 on the robot);
+* `ControlL`: left wheel pwm signal (when control_input=3 on the robot);
+* `VelocitySetR`: right wheel angular velocity setpoint (when control_input=2 on the robot);
+* `VelocitySetL`: left wheel angular velocity setpoint (when control_input=2 on the robot);
+* `cmd_vel`: linear and angular velocity setpoints (when control_input=1 on the robot);
+* `VelocityEncR`: right wheel angular velocity;
+* `VelocityEncL`: left wheel angular velocity;
+* `robot_vel`: linear and angular velocities of the robot;
 
 
