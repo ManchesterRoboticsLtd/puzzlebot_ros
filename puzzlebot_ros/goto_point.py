@@ -22,6 +22,7 @@ class GotoPoint(Node):
     def __init__(self):
         super().__init__('goto_point')
         
+        # Velocity setpoint topics (control_input=2 on the robot)
         self.pub_cmdR = self.create_publisher(Float32, 'VelocitySetR', 10)
         self.pub_cmdL = self.create_publisher(Float32, 'VelocitySetL', 10)
         
@@ -38,7 +39,8 @@ class GotoPoint(Node):
         
         self.w_setR = 0.0
         self.w_setL = 0.0
-                                
+                        
+        # Target points        
         self.target_x = [1,  1,  0,  0]
         self.target_y = [0, -1, -1,  0]
         

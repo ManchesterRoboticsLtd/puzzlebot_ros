@@ -23,11 +23,9 @@ For Ros2 `Humble` and Gazebo `Garden` only from source (clone repository into yo
 
 
 ### Aruco detection
-Install [aruco detector](https://github.com/pal-robotics/aruco_ros) for Ros2.
-  
-Clone repository into your ros workspace (for `Humble`):
+Install [Aruco opencv ros](https://github.com/fictionlab/ros_aruco_opencv) for Ros2.
 
-        git clone -b "humble-devel" https://github.com/pal-robotics/aruco_ros.git
+        sudo apt install ros-humble-aruco-opencv
 
 
 
@@ -37,11 +35,11 @@ Clone repository into your ros workspace (for `Humble`):
 
 Clone repository into your ros workspace source directory:
 
-        git clone https://github.com/Manchester-Robotics/puzzlebot_ros.git
+        git clone https://github.com/ManchesterRoboticsLtd/puzzlebot_ros.git
 
 To build it open a terminal window in your Ros2 workspace and run:
 
-        colcon build --packages-select puzzlebot_ros
+        colcon build --packages-select puzzlebot_ros --symlink-install
 
 Set the Gazebo sim resource and plugin paths environment variables (can be added in .bashrc for convenince):
 
@@ -56,13 +54,13 @@ The `gazebo_resource_path` should be the gazebo folder in the puzzlebot_ros dire
 
 To run in simulation mode launch the gazebo sim first:
 
-        ros2 launch puzzlebot_ros gazebo_aruco.launch.py
+        ros2 launch puzzlebot_ros aruco_gazebo.launch.py
 
 The following gazebo sim launch files can be used:
 
-* `gazebo_aruco.launch.py`: launches gazebo with an aruco world and a camera puzzlebot;
-* `gazebo_empty.launch.py`: launches gazebo with an empty walled world and a camera puzzlebot;
-* `gazebo_box.launch.py`: launches gazebo with a puzzlebot robot suspended on a box.
+* `aruco_gazebo.launch.py`: launches gazebo with an aruco world and a camera puzzlebot;
+* `gazebo_empty_world.launch.py`: launches gazebo with an empty walled world and a camera puzzlebot;
+* `gazebo_box_world.launch.py`: launches gazebo with a puzzlebot robot suspended on a box.
 
 In another terminal you can run the puzzlebot test apps:
 
@@ -72,11 +70,28 @@ Or run python executable:
 
         ros2 run puzzlebot_ros velocity_control
         
+
+To run tests on the real robot you need to launch the camera with aruco node first (only for kalman filter):
+
+        ros2 launch puzzlebot_ros aruco_jetson.launch.py
+
 The following launch files and apps are available:
 
-* `goto_kalman.launch.py`: launches the aruco marker detector and goto_point with kalman filter;
+* `goto_kalman.launch.py`: launches goto_point with kalman filter;
+* `goto_deadreckoning.launch.py`: launches goto_point with deadreckoning odometry (does not require camera);
 * `pwm_control`: sends pwm signals to the wheels and plots the results;
 * `velocity_control`: implements a PID velocity controller for the wheels;
 * `distance_control`: cascade control with laser sensor for keeping a constant distance to an obstacle.
+
+
+The following topics are used for commuication eith the robot:
+* 'ControlR': right wheel pwm signal (when control_input=3 on the robot);
+* 'ControlL': left wheel pwm signal (when control_input=3 on the robot);
+* 'VelocitySetR': right wheel angular velocity setpoint (when control_input=2 on the robot);
+* 'VelocitySetL': left wheel angular velocity setpoint (when control_input=2 on the robot);
+* 'cmd_vel': linear and angular velocity setpoints (when control_input=1 on the robot);
+* 'VelocityEncR': right wheel angular velocity;
+* 'VelocityEncL': left wheel angular velocity;
+* 'robot_vel': linear and angular velocities of the robot;
 
 

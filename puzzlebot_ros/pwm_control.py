@@ -13,6 +13,7 @@ class PwmControl(Node):
     def __init__(self):
         super().__init__('pwm_control')
         
+        # Pwm signal topics (control_input=3 on the robot)
         self.pub_cmdR = self.create_publisher(Float32, 'ControlR', 10)
         self.pub_cmdL = self.create_publisher(Float32, 'ControlL', 10)
         

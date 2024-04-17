@@ -17,6 +17,7 @@ class DistanceControl(Node):
     def __init__(self):
         super().__init__('distance_control')
         
+        # Pwm signal topics (control_input=3 on the robot)
         self.pub_cmdR = self.create_publisher(Float32, 'ControlR', 10)
         self.pub_cmdL = self.create_publisher(Float32, 'ControlL', 10)
         
@@ -26,10 +27,10 @@ class DistanceControl(Node):
         self.sub_laser = self.create_subscription(Float32,'LaserDistance',self.laser_callback,qos.qos_profile_sensor_data)
         
         self.pid_dt = 0.02  # seconds
-        self.timer_pid = self.create_timer(self.pid_dt, self.velocity_loop)
+        self.timer_pid = self.create_timer(self.pid_dt, self.velocity_loop)  # pid controllers loop (inner loop)
         
         self.distance_dt = 0.1  # seconds
-        self.timer_distance = self.create_timer(self.distance_dt, self.distance_loop)
+        self.timer_distance = self.create_timer(self.distance_dt, self.distance_loop)  # distance control loop (outer loop)
                 
         self.velocityR = 0.0
         self.velocityL = 0.0
@@ -39,8 +40,12 @@ class DistanceControl(Node):
         
         self.laser_distance = 0.0
         
+        # define pid controllers for the wheels and set parameters Kp,Ti,Td
         self.pidR = PidController()
         self.pidL = PidController()
+        
+        self.pidR.SetParameters(0.03,0.03,0.0)
+        self.pidL.SetParameters(0.03,0.03,0.0)
         
         self.setD = 0.25
         self.Kd = 10.0

@@ -15,6 +15,7 @@ class VelocityControl(Node):
     def __init__(self):
         super().__init__('pwm_control')
         
+        # Pwm signal topics (control_input=3 on the robot)
         self.pub_cmdR = self.create_publisher(Float32, 'ControlR', 10)
         self.pub_cmdL = self.create_publisher(Float32, 'ControlL', 10)
         
@@ -22,7 +23,7 @@ class VelocityControl(Node):
         self.sub_encL = self.create_subscription(Float32,'VelocityEncL',self.encL_callback,qos.qos_profile_sensor_data)
         
         self.dt = 0.02  # seconds
-        self.timer = self.create_timer(self.dt, self.pid_loop)
+        self.timer = self.create_timer(self.dt, self.pid_loop)  # timer for the pid loop
         
         self.start_step = 20
         self.N = 100
@@ -30,8 +31,12 @@ class VelocityControl(Node):
         self.velocityR = 0.0
         self.velocityL = 0.0
         
+        # define pid controllers for the wheels and set parameters Kp,Ti,Td
         self.pidR = PidController()
         self.pidL = PidController()
+        
+        self.pidR.SetParameters(0.03,0.03,0.0)
+        self.pidL.SetParameters(0.03,0.03,0.0)
         
         self.velocityR_all = []
         self.velocityL_all = []
