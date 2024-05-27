@@ -8,7 +8,6 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch_ros.actions import Node
 from launch.substitutions import LaunchConfiguration
-from nav2_common.launch import RewrittenYaml
 from launch.actions import ExecuteProcess
 
 def generate_launch_description():
