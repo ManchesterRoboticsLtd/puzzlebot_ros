@@ -44,6 +44,10 @@ class GotoPoint(Node):
         self.target_x = [1,  1,  0,  0]
         self.target_y = [0, -1, -1,  0]
         
+        # Target gazebo simulation points    
+        self.target_x = [2,  2,  1,  1]
+        self.target_y = [0, -1, -1,  0]
+        
         self.current_point = 0
         
         self.Dmin = 0.05

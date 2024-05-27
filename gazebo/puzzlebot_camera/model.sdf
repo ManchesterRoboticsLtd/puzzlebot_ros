@@ -254,7 +254,7 @@
             <mot_K>0.01</mot_K>
             <mot_b>0.00001</mot_b>
             <mot_gear>34</mot_gear>
-            <robot_width>0.09</robot_width>
+            <robot_width>0.18</robot_width>
             <wheel_radius>0.05</wheel_radius>
             <pid_Kp>0.1</pid_Kp>
             <pid_Ti>0.05</pid_Ti>

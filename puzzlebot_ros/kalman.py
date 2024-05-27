@@ -54,15 +54,16 @@ class Kalman(Node):
         self.wheel_radius = 0.05
         self.robot_width = 0.1875
         
-        self.sigma_squared = 0.1
+        # deadreckoning uncertainty
+        self.sigma_squared = 0.3
         
         self.Sig = np.array([[0,0,0],
                              [0,0,0],
                              [0,0,0]])
         
         # Map for real world   
-        self.map = [[0,  1.5,  0.2,   0],
-                    [1,    0,  -1.9,   -1.57]]
+        #self.map = [[0,  1.5,  0.2,   0],
+        #            [1,    0,  -1.9,   -1.57]]
         
         # Map for gazebo world
         self.map = [[0,   3,   1,   0],
